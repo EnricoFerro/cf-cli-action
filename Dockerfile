@@ -6,5 +6,6 @@ RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&ver
 
 RUN mv cf8 /usr/local/bin
 RUN mv cf /usr/local/bin
+RUN /usr/local/bin/cf -v
 ADD entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
