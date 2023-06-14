@@ -1,5 +1,6 @@
 #!/bin/sh -l
 
+cf install-plugin multiapps -f
 cf api "$INPUT_CF_API"
 cf auth "$INPUT_CF_USERNAME" "$INPUT_CF_PASSWORD"
 
