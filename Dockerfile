@@ -1,11 +1,14 @@
-FROM alpine:3.18
+FROM ubuntu:22.04
 
-RUN apk add curl ca-certificates jq
+RUN apt-get update
+RUN apt-get install -y ca-certificates jq
 
-RUN curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8&source=github" | tar -zx
+RUN echo "deb [trusted=yes] https://packages.cloudfoundry.org/debian stable main" > /etc/apt/sources.list.d/cloudfoundry-cli.list
+RUN apt-get update
+RUN apt-get install -y cf8-cli
 
-RUN mv cf8 /usr/local/bin
-RUN mv cf /usr/local/bin
-ENV CF_PLUGIN_HOME=/tmp
+# Add support for MTA deployment (Doesn't stick here - so run it in the entrypoint.sh)
+# RUN cf install-plugin multiapps -f
+
 ADD entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
