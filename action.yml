@@ -60,6 +60,6 @@ runs:
           $sudocmd cf target -o "${{ inputs.cf_org }}" -s "${{ inputs.cf_space }}"
         fi
 
-        sh -c "cf ${{ inputs.command }}"
+        $sudocmd cf ${{ inputs.command }}
         
 
