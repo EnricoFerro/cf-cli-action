@@ -23,7 +23,43 @@ inputs:
     description: "Command to run using CF CLI"
     required: true
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - ${{ inputs.command }}
+  using: 'composite'
+  steps:
+    - name: Install cf
+      shell: bash
+      run: | 
+        if [ "$(id --user)" -eq "0" ]; then
+            sudocmd=""
+        else
+            sudocmd="sudo"
+        fi
+
+        $sudocmd apt-get --quiet update --assume-yes || true
+        $sudocmd apt-get --quiet install --assume-yes ca-certificates jq
+        echo "deb [trusted=yes] https://packages.cloudfoundry.org/debian stable main" |  $sudocmd dd of=/etc/apt/sources.list.d/cloudfoundry-cli.list
+        $sudocmd apt-get update
+        $sudocmd apt-get install -y cf8-cli
+    - name: Connect and launch cf
+      shell: bash
+      run: | 
+        if [ "$(id --user)" -eq "0" ]; then
+            sudocmd=""
+        else
+            sudocmd="sudo"
+        fi
+
+        $sudocmd cf install-plugin multiapps -f
+        $sudocmd cf api "${{ inputs.cf_api }}"
+        if [ -n "${{ inputs.cf_origin }}" ]; then
+          $sudocmd cf auth "${{ inputs.cf_username }}" "${{ inputs.cf_password }}" --origin "${{ inputs.cf_origin }}"
+        else
+          $sudocmd cf auth "${{ inputs.cf_username }}" "${{ inputs.cf_password }}"
+        fi
+
+        if [ -n "${{ inputs.cf_org }}" ] && [ -n "${{ inputs.cf_space }}" ]; then
+          $sudocmd cf target -o "${{ inputs.cf_org }}" -s "${{ inputs.cf_space }}"
+        fi
+
+        sh -c "cf ${{ inputs.command }}"
+        
+
