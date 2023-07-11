@@ -49,13 +49,8 @@ runs:
         fi
 
         $sudocmd cf install-plugin multiapps -f
-        $sudocmd cf api "${{ inputs.cf_api }}"
-        if [ -n "${{ inputs.cf_origin }}" ]; then
-          $sudocmd cf auth "${{ inputs.cf_username }}" "${{ inputs.cf_password }}" --origin "${{ inputs.cf_origin }}"
-        else
-          $sudocmd cf auth "${{ inputs.cf_username }}" "${{ inputs.cf_password }}"
-        fi
-
+        $sudocmd cf login -u "${{ inputs.cf_username }}" -p "${{ inputs.cf_password }}" -a "${{ inputs.cf_api }}"
+        
         if [ -n "${{ inputs.cf_org }}" ] && [ -n "${{ inputs.cf_space }}" ]; then
           $sudocmd cf target -o "${{ inputs.cf_org }}" -s "${{ inputs.cf_space }}"
         fi
